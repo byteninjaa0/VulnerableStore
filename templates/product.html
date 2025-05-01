@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ product.name }} - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-5">
+        {% if product.image_url %}
+        <img src="{{ product.image_url }}" alt="{{ product.name }}" class="img-fluid product-detail-img rounded">
+        {% else %}
+        <div class="text-center py-5 bg-dark rounded">
+            <i class="fas fa-box fa-5x text-secondary"></i>
+        </div>
+        {% endif %}
+    </div>
+    <div class="col-md-7">
+        <h1>{{ product.name }}</h1>
+        <p class="lead">{{ product.description }}</p>
+        <h3 class="text-primary mb-3">${{ "%.2f"|format(product.price) }}</h3>
+        
+        <div class="mb-3">
+            <span class="badge bg-{% if product.stock > 0 %}success{% else %}danger{% endif %}">
+                {% if product.stock > 0 %}In Stock ({{ product.stock }}){% else %}Out of Stock{% endif %}
+            </span>
+        </div>
+        
+        {% if product.stock > 0 %}
+        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-success btn-lg add-to-cart-btn" data-product-name="{{ product.name }}">
+            <i class="fas fa-cart-plus me-2"></i>Add to Cart
+        </a>
+        {% else %}
+        <button class="btn btn-secondary btn-lg" disabled>Out of Stock</button>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Product Reviews Section with XSS Vulnerability -->
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h3>Customer Reviews</h3>
+            </div>
+            <div class="card-body">
+                {% if session.logged_in %}
+                <!-- Add Review Form - Vulnerable to XSS -->
+                <form method="post" action="{{ url_for('add_review') }}">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <input type="hidden" id="rating-value" name="rating" value="5">
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Rating:</label>
+                        <div class="star-rating">
+                            {% for i in range(1, 6) %}
+                            <input type="radio" id="star{{ i }}" name="rating-display" value="{{ i }}" class="rating-input" {% if i == 5 %}checked{% endif %}>
+                            <label for="star{{ i }}" class="star-label text-warning">★</label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="review-content" class="form-label">Your Review:</label>
+                        <textarea class="form-control" id="review-content" name="content" rows="4" required></textarea>
+                        <div class="form-text">Try XSS attack: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary">Submit Review</button>
+                </form>
+                <hr>
+                {% else %}
+                <div class="alert alert-info mb-4">
+                    <a href="{{ url_for('login') }}">Login</a> to leave a review.
+                </div>
+                {% endif %}
+                
+                <!-- Display Reviews - Vulnerable to Stored XSS -->
+                {% if reviews %}
+                <h4 class="mb-3">All Reviews</h4>
+                {% for review in reviews %}
+                <div class="card mb-3 review-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between mb-2">
+                            <h5 class="card-title">{{ review.username }}</h5>
+                            <div class="text-warning">
+                                {% for i in range(review.rating) %}★{% endfor %}
+                                {% for i in range(5 - review.rating) %}☆{% endfor %}
+                            </div>
+                        </div>
+                        <!-- Vulnerability: Raw rendering of user input (Stored XSS) -->
+                        <p class="card-text">{{ review.content|safe }}</p>
+                        <div class="text-muted small">Posted on: {{ review.created_at }}</div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p>No reviews yet. Be the first to review this product!</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerability: Stored Cross-Site Scripting (XSS)</h5>
+            </div>
+            <div class="card-body">
+                <p>The review section contains a <strong>Stored XSS vulnerability</strong>. User input is rendered directly in the page without proper sanitization.</p>
+                <p><strong>Try submitting a review with:</strong></p>
+                <pre><code>&lt;script&gt;alert('XSS Attack!')&lt;/script&gt;</code></pre>
+                <p>Or more advanced:</p>
+                <pre><code>&lt;img src="x" onerror="alert('XSS')"&gt;</code></pre>
+                <p><strong>Secure alternative:</strong> Always escape or sanitize user-generated content before rendering it.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

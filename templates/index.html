@@ -1,0 +1,70 @@
+{% extends "layout.html" %}
+
+{% block title %}Vulnerable E-commerce - Home{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">Welcome to Vulnerable Shop</h1>
+
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h5 class="card-title">Explore Our Products</h5>
+                <p class="card-text">Browse our selection of the latest tech gadgets and accessories.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100">
+            {% if product.image_url %}
+            <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+            {% else %}
+            <div class="text-center pt-4">
+                <i class="fas fa-box fa-5x text-secondary"></i>
+            </div>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text text-truncate">{{ product.description }}</p>
+                <p class="card-text text-primary fw-bold">${{ "%.2f"|format(product.price) }}</p>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('product', product_id=product.id) }}" class="btn btn-info">View Details</a>
+                    <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-outline-success add-to-cart-btn" data-product-name="{{ product.name }}">
+                        <i class="fas fa-cart-plus"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Security Vulnerability Information (Educational) -->
+<div class="row mt-5">
+    <div class="col-md-12">
+        <div class="card bg-dark">
+            <div class="card-header">
+                <h4>Educational Information: Security Vulnerabilities</h4>
+            </div>
+            <div class="card-body">
+                <p>This application contains the following intentional vulnerabilities:</p>
+                <ul>
+                    <li><strong>SQL Injection</strong> - Try searching for: <code>' OR 1=1 --</code></li>
+                    <li><strong>XSS (Cross-Site Scripting)</strong> - Try adding a review with: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
+                    <li><strong>CSRF (Cross-Site Request Forgery)</strong> - No CSRF tokens in forms</li>
+                    <li><strong>IDOR (Insecure Direct Object Reference)</strong> - Try accessing other users' data by changing IDs in URLs</li>
+                    <li><strong>Command Injection</strong> - In the profile update, try: <code>image.jpg; cat /etc/passwd</code></li>
+                    <li><strong>Insecure Authentication</strong> - Passwords stored as plaintext</li>
+                </ul>
+                <div class="alert alert-warning">
+                    <strong>Note:</strong> These vulnerabilities are for educational purposes only. Never implement these practices in real applications!
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

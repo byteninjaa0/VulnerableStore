@@ -1,0 +1,105 @@
+{% extends "layout.html" %}
+
+{% block title %}Order Details - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if session.is_admin %}
+                <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Admin Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin_orders') }}">Orders</a></li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('profile') }}">My Profile</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page">Order #{{ order.id }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-12">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>Order #{{ order.id }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Order Date:</strong> {{ order.created_at }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="badge {% if order.status == 'Completed' %}bg-success{% elif order.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                {{ order.status }}
+                            </span>
+                        </p>
+                    </div>
+                    <div class="col-md-6 text-md-end">
+                        <p><strong>Order Total:</strong> ${{ "%.2f"|format(order.total_amount) }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3>Order Items</h3>
+            </div>
+            <div class="card-body">
+                {% if items %}
+                <div class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Product</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>${{ "%.2f"|format(item.price) }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>${{ "%.2f"|format(item.price * item.quantity) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="3" class="text-end"><strong>Total:</strong></td>
+                                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+                {% else %}
+                <p>No items found for this order.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerability: Insecure Direct Object Reference (IDOR)</h5>
+            </div>
+            <div class="card-body">
+                <p>This page is vulnerable to <strong>Insecure Direct Object Reference (IDOR)</strong> attacks. The application does not verify if the current user owns the order being viewed.</p>
+                <p><strong>Try this attack:</strong></p>
+                <ul>
+                    <li>Change the order ID in the URL to access other users' orders</li>
+                </ul>
+                <p><strong>Secure alternative:</strong> Always verify that the current user has permission to access the requested order before displaying it.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

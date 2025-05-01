@@ -1,0 +1,64 @@
+{% extends "layout.html" %}
+
+{% block title %}Admin Panel - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card bg-dark">
+            <div class="card-body">
+                <h2 class="card-title">Admin Dashboard</h2>
+                <p class="card-text">Welcome to the admin panel. Here you can manage users, orders, and products.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row admin-dashboard">
+    <div class="col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-users fa-4x text-primary mb-3"></i>
+                <h3 class="card-title">Manage Users</h3>
+                <p class="card-text">View and manage user accounts</p>
+                <a href="{{ url_for('admin_users') }}" class="btn btn-primary mt-3">Go to Users</a>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-4">
+        <div class="card text-center h-100">
+            <div class="card-body">
+                <i class="fas fa-shopping-bag fa-4x text-success mb-3"></i>
+                <h3 class="card-title">Manage Orders</h3>
+                <p class="card-text">View and manage customer orders</p>
+                <a href="{{ url_for('admin_orders') }}" class="btn btn-success mt-3">Go to Orders</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerabilities in Admin Panel</h5>
+            </div>
+            <div class="card-body">
+                <p>The admin panel contains several security issues:</p>
+                <ul>
+                    <li><strong>Insecure Authentication:</strong> The admin check only relies on a session variable (<code>is_admin</code>) which could be manipulated.</li>
+                    <li><strong>IDOR (Insecure Direct Object Reference):</strong> Order and user details can be accessed directly by manipulating IDs in URLs.</li>
+                    <li><strong>Missing Access Controls:</strong> Proper authorization checks are not implemented for sensitive operations.</li>
+                </ul>
+                <p><strong>Secure alternatives:</strong></p>
+                <ul>
+                    <li>Implement proper role-based access control</li>
+                    <li>Verify resource ownership before granting access</li>
+                    <li>Use secure session management and authentication</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

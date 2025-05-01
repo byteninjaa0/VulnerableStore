@@ -1,0 +1,120 @@
+{% extends "layout.html" %}
+
+{% block title %}Profile - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4">
+        <div class="card mb-4">
+            <div class="card-header">
+                <h3>My Profile</h3>
+            </div>
+            <div class="card-body">
+                {% if user %}
+                <p><strong>Username:</strong> {{ user.username }}</p>
+                <p><strong>Email:</strong> {{ user.email }}</p>
+                <p><strong>Address:</strong> {{ user.address or 'Not provided' }}</p>
+                {% else %}
+                <p>User information not available.</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Profile Update Form with Command Injection Vulnerability -->
+        <div class="card">
+            <div class="card-header">
+                <h3>Update Profile</h3>
+            </div>
+            <div class="card-body">
+                <!-- Vulnerability: No CSRF token, command injection in profile_picture -->
+                <form method="post" action="{{ url_for('update_profile') }}">
+                    <div class="mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" value="{{ user.email }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <textarea class="form-control" id="address" name="address" rows="3">{{ user.address }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="profile-picture" class="form-label">Profile Picture Filename</label>
+                        <input type="text" class="form-control" id="profile-picture" name="profile_picture" placeholder="e.g., profile.jpg">
+                        <div class="form-text">Try command injection: <code>image.jpg; cat /etc/passwd</code></div>
+                        <div id="command-warning" class="alert alert-danger mt-2 d-none">
+                            Warning: Potential command injection detected!
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-8">
+        <div class="card">
+            <div class="card-header">
+                <h3>My Orders</h3>
+            </div>
+            <div class="card-body">
+                {% if orders %}
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Date</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in orders %}
+                            <tr>
+                                <td>{{ order.id }}</td>
+                                <td>{{ order.created_at }}</td>
+                                <td>${{ "%.2f"|format(order.total_amount) }}</td>
+                                <td>
+                                    <span class="badge {% if order.status == 'Completed' %}bg-success{% elif order.status == 'Pending' %}bg-warning{% else %}bg-secondary{% endif %}">
+                                        {{ order.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <!-- Vulnerability: IDOR - Anyone can access any order by changing the order_id -->
+                                    <a href="{{ url_for('view_order', order_id=order.id) }}" class="btn btn-sm btn-info">View</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p>You haven't placed any orders yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerabilities: Command Injection & IDOR</h5>
+            </div>
+            <div class="card-body">
+                <h6>Command Injection:</h6>
+                <p>The profile picture field is vulnerable to command injection. The application passes user input directly to a system command.</p>
+                <p><strong>Try:</strong> <code>image.jpg; cat /etc/passwd</code> or <code>image.jpg && echo "pwned"</code></p>
+                <p><strong>Secure alternative:</strong> Never pass user input to system commands. Use sanitization and validation.</p>
+                
+                <h6>Insecure Direct Object Reference (IDOR):</h6>
+                <p>The order view links are vulnerable to IDOR. Users can access other users' orders by simply changing the order_id in the URL.</p>
+                <p><strong>Try:</strong> Modifying the order ID in the URL to access orders that don't belong to you.</p>
+                <p><strong>Secure alternative:</strong> Verify ownership of resources before allowing access.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}Search Results - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">Search Products</h3>
+                <!-- Search form - vulnerable to SQL Injection and Reflected XSS -->
+                <form action="{{ url_for('search') }}" method="get" class="d-flex">
+                    <input type="text" name="q" class="form-control me-2" placeholder="Search for products..." value="{{ query|default('', true) }}">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+                {% if query %}
+                <!-- Reflected XSS vulnerability - unescaped search query -->
+                <p class="mt-2">Showing results for: <strong>{{ query|safe }}</strong></p>
+                <!-- Educational hint -->
+                <div class="text-muted small">Try XSS attack: <code>&lt;script&gt;alert('Reflected XSS')&lt;/script&gt;</code></div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if query %}
+<div class="row">
+    {% if products|length > 0 %}
+        {% for product in products %}
+        <div class="col-md-3 mb-4">
+            <div class="card h-100">
+                {% if product.image_url %}
+                <img src="{{ product.image_url }}" class="card-img-top" alt="{{ product.name }}">
+                {% else %}
+                <div class="text-center pt-4">
+                    <i class="fas fa-box fa-5x text-secondary"></i>
+                </div>
+                {% endif %}
+                <div class="card-body">
+                    <h5 class="card-title">{{ product.name }}</h5>
+                    <p class="card-text text-truncate">{{ product.description }}</p>
+                    <p class="card-text text-primary fw-bold">${{ "%.2f"|format(product.price) }}</p>
+                    <div class="d-flex justify-content-between">
+                        <a href="{{ url_for('product', product_id=product.id) }}" class="btn btn-info">View Details</a>
+                        <a href="{{ url_for('add_to_cart', product_id=product.id) }}" class="btn btn-outline-success add-to-cart-btn" data-product-name="{{ product.name }}">
+                            <i class="fas fa-cart-plus"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+    <div class="col-md-12">
+        <div class="alert alert-info">No products found matching your search criteria.</div>
+    </div>
+    {% endif %}
+</div>
+{% endif %}
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerabilities: SQL Injection & Reflected XSS</h5>
+            </div>
+            <div class="card-body">
+                <h6>SQL Injection:</h6>
+                <p>The search functionality is vulnerable to SQL Injection attacks. User input is directly inserted into SQL queries.</p>
+                <p><strong>Try these SQL injection attacks:</strong></p>
+                <ul>
+                    <li><code>' OR 1=1 --</code> - Returns all products</li>
+                    <li><code>' UNION SELECT id, username, password, email, NULL, NULL FROM users --</code> - Attempts to extract user data</li>
+                </ul>
+                <p><strong>Secure alternative:</strong> Use parameterized queries or prepared statements.</p>
+                
+                <h6>Reflected XSS:</h6>
+                <p>The search page is also vulnerable to Reflected XSS. The search query is displayed without proper escaping.</p>
+                <p><strong>Try this XSS attack:</strong></p>
+                <pre><code>&lt;script&gt;alert('Reflected XSS')&lt;/script&gt;</code></pre>
+                <p><strong>Secure alternative:</strong> Always escape user input before rendering it in HTML.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

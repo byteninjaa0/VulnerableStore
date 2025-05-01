@@ -1,0 +1,88 @@
+{% extends "layout.html" %}
+
+{% block title %}User Details - Vulnerable E-commerce{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                {% if session.is_admin %}
+                <li class="breadcrumb-item"><a href="{{ url_for('admin') }}">Admin Dashboard</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('admin_users') }}">Users</a></li>
+                {% else %}
+                <li class="breadcrumb-item"><a href="{{ url_for('profile') }}">My Profile</a></li>
+                {% endif %}
+                <li class="breadcrumb-item active" aria-current="page">User {{ user.username }}</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6 mx-auto">
+        <div class="card">
+            <div class="card-header">
+                <h3>User Profile: {{ user.username }}</h3>
+            </div>
+            <div class="card-body">
+                <!-- Vulnerability: Displaying sensitive information -->
+                <dl class="row">
+                    <dt class="col-sm-3">User ID:</dt>
+                    <dd class="col-sm-9">{{ user.id }}</dd>
+                    
+                    <dt class="col-sm-3">Username:</dt>
+                    <dd class="col-sm-9">{{ user.username }}</dd>
+                    
+                    <dt class="col-sm-3">Email:</dt>
+                    <dd class="col-sm-9">{{ user.email }}</dd>
+                    
+                    <dt class="col-sm-3">Password:</dt>
+                    <dd class="col-sm-9 text-danger">{{ user.password }}</dd>
+                    
+                    <dt class="col-sm-3">Address:</dt>
+                    <dd class="col-sm-9">{{ user.address or 'Not provided' }}</dd>
+                    
+                    <dt class="col-sm-3">Admin:</dt>
+                    <dd class="col-sm-9">
+                        {% if user.is_admin %}
+                        <span class="badge bg-primary">Yes</span>
+                        {% else %}
+                        <span class="badge bg-secondary">No</span>
+                        {% endif %}
+                    </dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Educational Information -->
+<div class="row mt-4">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5>Security Vulnerabilities: IDOR & Information Disclosure</h5>
+            </div>
+            <div class="card-body">
+                <h6>Insecure Direct Object Reference (IDOR):</h6>
+                <p>This page is vulnerable to IDOR attacks. Anyone can access any user's profile information by simply changing the user ID in the URL.</p>
+                <p><strong>Try this attack:</strong></p>
+                <ul>
+                    <li>Change the user ID in the URL to access other users' profiles</li>
+                </ul>
+                
+                <h6>Information Disclosure:</h6>
+                <p>This page displays sensitive information including plain-text passwords. This information should never be exposed, especially not to other users.</p>
+                
+                <p><strong>Secure alternatives:</strong></p>
+                <ul>
+                    <li>Implement proper access controls to verify user permissions</li>
+                    <li>Never store passwords in plain text (use strong hashing)</li>
+                    <li>Avoid displaying sensitive information even to authorized users</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

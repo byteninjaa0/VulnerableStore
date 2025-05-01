@@ -1,0 +1,54 @@
+/* Custom styles for the vulnerable e-commerce app */
+
+/* This file contains minimal custom styling as we're primarily using Bootstrap */
+
+.card-img-top {
+    height: 200px;
+    object-fit: contain;
+    padding: 10px;
+}
+
+.product-detail-img {
+    max-height: 400px;
+    object-fit: contain;
+}
+
+.review-card {
+    margin-bottom: 15px;
+}
+
+.cart-item {
+    margin-bottom: 10px;
+}
+
+.alert-vulnerable {
+    color: #721c24;
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    position: relative;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1rem;
+    border: 1px solid transparent;
+    border-radius: 0.25rem;
+}
+
+/* Admin panel styling */
+.admin-dashboard .card {
+    transition: transform 0.3s;
+}
+
+.admin-dashboard .card:hover {
+    transform: translateY(-5px);
+}
+
+/* Profile page styling */
+.profile-info {
+    margin-bottom: 2rem;
+}
+
+/* Footer styling */
+.footer {
+    margin-top: 3rem;
+    padding: 1.5rem 0;
+    background-color: var(--bs-dark);
+}
