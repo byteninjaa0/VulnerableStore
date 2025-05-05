@@ -5,6 +5,7 @@ WORKDIR /app
 # Install required system dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     sqlite3 \
+    nano \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy requirements first (for better caching)
