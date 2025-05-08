@@ -53,7 +53,7 @@
             <div class="card-body">
                 <p>This application contains the following intentional vulnerabilities:</p>
                 <ul>
-                    <li><strong>SQL Injection</strong> - Try login with <code>username-admin' -- password-anything</code></li>
+                    <li><strong>SQL Injection</strong> - Try login with <code>username-admin' -- and password-anything</code></li>
                     <li><strong>XSS (Cross-Site Scripting)</strong> - Try adding a review with: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code></li>
                     <li><strong>CSRF (Cross-Site Request Forgery)</strong> - No CSRF tokens in forms</li>
                     <li><strong>IDOR (Insecure Direct Object Reference)</strong> - Try accessing other users' data by changing IDs in URLs</li>
