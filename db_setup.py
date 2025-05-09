@@ -80,7 +80,7 @@ c.execute("INSERT INTO users (username, password, email, address, is_admin) VALU
 # Products
 products = [
     ('Smartphone', 'Latest model with high-resolution camera', 699.99, 50, '/static/img/smartphone.jpg'),
-    ('Laptop', 'Powerful laptop for work and gaming', 1299.99, 30, '/static/img/laptop.jpg'),
+    ('Laptop', 'Powerful laptop for work and gaming', 1299.99, 30, 'https://images.pexels.com/photos/538969/pexels-photo-538969.jpeg?cs=srgb&dl=computer-laptop-technology-538969.jpg&fm=jpg'),
     ('Headphones', 'Noise-cancelling wireless headphones', 199.99, 100, '/static/img/headphones.jpg'),
     ('Smartwatch', 'Track your fitness and get notifications', 249.99, 45, '/static/img/smartwatch.jpg'),
     ('Tablet', '10-inch screen with long battery life', 399.99, 60, '/static/img/tablet.jpg'),
